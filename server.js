@@ -19,8 +19,8 @@ app.post('/send-order', (req, res) => {
     const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
-            user: 'a2zcrockeriesnhandicraft@gmail.com', // **REPLACE WITH YOUR GMAIL ADDRESS**
-            pass: 'yvuqyllmmgtzxubl' // **REPLACE WITH YOUR APP PASSWORD**
+            user: process.env.GMAIL_USER, // **REPLACE WITH YOUR GMAIL ADDRESS**
+            pass: process.env.GMAIL_APP_PASS // **REPLACE WITH YOUR APP PASSWORD**
         }
     });
 
@@ -54,5 +54,5 @@ ${orderDetails}
 
 const PORT = 3000;
 app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+      console.log(`Server is running on port ${PORT}`);
 });
