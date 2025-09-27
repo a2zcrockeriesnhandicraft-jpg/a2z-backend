@@ -1,34 +1,25 @@
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
 const express = require('express');
-const nodemailer = require('nodemailer');
+const sgMail = require('@sendgrid/mail'); // Import SendGrid
 const cors = require('cors');
 const bodyParser = require('body-parser');
 
 const app = express();
+app.use(cors());
+app.use(bodyParser.json());
 
-// Middleware
-app.use(cors()); // Allows your front-end to communicate with this back-end
-app.use(bodyParser.json()); // Parses incoming JSON data
+// Set the SendGrid API Key from the environment variables
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-// POST route to handle order submissions
 app.post('/send-order', (req, res) => {
     const { name, address, phone, email, orderDetails } = req.body;
 
-    // Set up the email transporter using your Gmail account
-    const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-            user: process.env.GMAIL_USER, // **REPLACE WITH YOUR GMAIL ADDRESS**
-            pass: process.env.GMAIL_APP_PASS // **REPLACE WITH YOUR APP PASSWORD**
-        }
-    });
-
-    // Email content
-    const mailOptions = {
-        from: 'a2zcrockeriesnhandicraft@gmail.com', // Sender address
-        to: 'a2zcrockeriesnhandicraft@gmail.com', // List of receivers (you)
-        subject: `New Order from ${name}`, // Subject line
+    // Email content for SendGrid
+    const msg = {
+        to: 'a2zcrockeriesnhandicraft@gmail.com', // The email where you want to receive orders
+        from: 'your-verified-sender-email@example.com', // IMPORTANT: See note below
+        subject: `New Order from ${name}`,
         text: `You have a new order!
 
 Customer Details:
@@ -41,18 +32,22 @@ ${orderDetails}
         `
     };
 
-    // Send the email
-    transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-            console.log(error);
+    // Send the email using SendGrid
+    sgMail.send(msg)
+        .then(() => {
+            console.log('Email sent successfully via SendGrid');
+            return res.status(200).json({ message: 'Order received successfully!' });
+        })
+        .catch((error) => {
+            console.error(error);
+            if (error.response) {
+                console.error(error.response.body)
+            }
             return res.status(500).json({ message: 'Something went wrong.' });
-        }
-        console.log('Email sent: ' + info.response);
-        return res.status(200).json({ message: 'Order received successfully!' });
-    });
+        });
 });
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-      console.log(`Server is running on port ${PORT}`);
+    console.log(`Server is running on port ${PORT}`);
 });
