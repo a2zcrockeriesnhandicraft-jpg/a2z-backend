@@ -18,7 +18,7 @@ app.post('/send-order', (req, res) => {
     // Email content for SendGrid
     const msg = {
         to: 'a2zcrockeriesnhandicraft@gmail.com', // The email where you want to receive orders
-        from: 'your-verified-sender-email@example.com', // IMPORTANT: See note below
+        from: 'a2zcrockeriesnhandicraft@gmail.com', // IMPORTANT: See note below
         subject: `New Order from ${name}`,
         text: `You have a new order!
 
